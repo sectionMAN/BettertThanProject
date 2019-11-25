@@ -3,9 +3,11 @@ package com.example.myapplication33;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -123,15 +125,16 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    final CameraCaptureSession.CaptureCallback captureCallbackListener = new CameraCaptureSession.CaptureCallback() {
+   /* final CameraCaptureSession.CaptureCallback captureCallbackListener = new CameraCaptureSession.CaptureCallback() {
         //викликається коли захоплення зображення закінчено і доступні усі метадані результату
         @Override
         public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
             super.onCaptureCompleted(session, request, result);
             Toast.makeText(MainActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
-            createCameraPreview();
+            takePicture();
+            //createCameraPreview();
         }
-    };
+    };*/
     protected void startBackgroundThread() {
         mBackgroundThread = new HandlerThread("Camera Background");
         mBackgroundThread.start();
@@ -175,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
             // Orientation
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-            final File file = new File(Environment.getExternalStorageDirectory()+"/pic.jpg");
+            //final File file = new File(Environment.getExternalStorageDirectory()+"/pic.jpg");
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -193,11 +196,17 @@ public class MainActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {*/
+
                         if (image != null) {
                             image.close();
                         }
                     //}
-                }
+                    MyModel model = ViewModelProviders.of(MainActivity.this).get(MyModel.class);
+                        model.setPhoto(bytes);
+                    Intent intent = new Intent(MainActivity.this, VideoActivity.class);
+                    startActivity(intent);
+                };
+
                 /*private void save(byte[] bytes) throws IOException {
                     OutputStream output = null;
                     try {
