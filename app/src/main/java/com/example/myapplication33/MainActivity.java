@@ -74,15 +74,16 @@ public class MainActivity extends AppCompatActivity {
         textureView = (TextureView) findViewById(R.id.textureview);
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
-        takePictureButton = (Button) findViewById(R.id.getpicture);
-        assert takePictureButton != null;
-        takePictureButton.setOnClickListener(new View.OnClickListener() {
+       // takePictureButton = (Button) findViewById(R.id.getpicture);
+        //assert takePictureButton != null;
+       /* takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 takePicture();
             }
-        });
+        });*/
     }
+    //дії, які потрібно виконати, коли текстура стане доступною
     TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
@@ -101,10 +102,12 @@ public class MainActivity extends AppCompatActivity {
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         }
     };
+
+    //отримуємо інформацію про стан камери
     private final CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(CameraDevice camera) {
-            //This is called when the camera is open
+            //буде викликано, коли камера відкриється
             Log.e(TAG, "onOpened");
             cameraDevice = camera;
             createCameraPreview();
@@ -119,7 +122,9 @@ public class MainActivity extends AppCompatActivity {
             cameraDevice = null;
         }
     };
+
     final CameraCaptureSession.CaptureCallback captureCallbackListener = new CameraCaptureSession.CaptureCallback() {
+        //викликається коли захоплення зображення закінчено і доступні усі метадані результату
         @Override
         public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
             super.onCaptureCompleted(session, request, result);
@@ -175,23 +180,25 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
                     Image image = null;
-                    try {
+                    //try {
+                    //Получить самое последнее изображение из очереди ImageReader,
+                    // отбросив старое изображение
                         image = reader.acquireLatestImage();
                         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
                         byte[] bytes = new byte[buffer.capacity()];
                         buffer.get(bytes);
-                        save(bytes);
-                    } catch (FileNotFoundException e) {
+                       // save(bytes);
+                    /*} catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
-                    } finally {
+                    } finally {*/
                         if (image != null) {
                             image.close();
                         }
-                    }
+                    //}
                 }
-                private void save(byte[] bytes) throws IOException {
+                /*private void save(byte[] bytes) throws IOException {
                     OutputStream output = null;
                     try {
                         output = new FileOutputStream(file);
@@ -201,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                             output.close();
                         }
                     }
-                }
+                }*/
             };
             reader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
             final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
@@ -209,10 +216,10 @@ public class MainActivity extends AppCompatActivity {
                 public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
                     super.onCaptureCompleted(session, request, result);
                     Toast.makeText(MainActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
-                    createCameraPreview();
+                   // createCameraPreview();
                 }
             };
-            cameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
+           /* cameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(CameraCaptureSession session) {
                     try {
@@ -224,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onConfigureFailed(CameraCaptureSession session) {
                 }
-            }, mBackgroundHandler);
+            }, mBackgroundHandler);*/
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -235,10 +242,14 @@ public class MainActivity extends AppCompatActivity {
             assert texture != null;
             texture.setDefaultBufferSize(imageDimension.getWidth(), imageDimension.getHeight());
             Surface surface = new Surface(texture);
+            // створюємо CaptureRequest для нового запиту камери
             captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(surface);
+            //створюємо новий сеанс захоплення
             cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback(){
                 @Override
+                //Этот метод вызывается, когда устройство камеры завершило самостоятельную настройку,
+                // и сеанс может начать обработку запросов захвата
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
                     //The camera is already closed
                     if (null == cameraDevice) {
@@ -248,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
                     cameraCaptureSessions = cameraCaptureSession;
                     updatePreview();
                 }
+                //Этот метод вызывается, если сеанс не может быть сконфигурирован согласно запрошенным настройкам.
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
                     Toast.makeText(MainActivity.this, "Configuration change", Toast.LENGTH_SHORT).show();
