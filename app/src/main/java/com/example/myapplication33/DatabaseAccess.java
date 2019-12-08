@@ -51,7 +51,7 @@ public class DatabaseAccess {
        return list;
     }
    public String getVideoName(byte [] image){
-       String videoName="";
+       String videoName="відповідності не знайдено";
        String strQuery = "Select "+  PhysicVideoEntry.KEY_IMAGE+" from "
                + PhysicVideoEntry.TABLE_NAME+ " where "
                + PhysicVideoEntry.KEY_IMAGE+" = ?";

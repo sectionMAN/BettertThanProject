@@ -21,6 +21,7 @@ public class VideoActivity extends AppCompatActivity {
         DatabaseAccess dba = DatabaseAccess.getInstance(this);
         dba.open();
         String vname = dba.getVideoName(photo);
+        dba.close();
         TextView pole = findViewById(R.id.pole);
         pole.setText(vname) ;
     }
